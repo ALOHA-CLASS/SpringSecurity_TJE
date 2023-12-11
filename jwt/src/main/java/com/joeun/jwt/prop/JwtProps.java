@@ -10,4 +10,5 @@ import lombok.Data;
 @ConfigurationProperties("com.joeun.jwt")
 public class JwtProps {
     
+    private String secretKey;
 }
