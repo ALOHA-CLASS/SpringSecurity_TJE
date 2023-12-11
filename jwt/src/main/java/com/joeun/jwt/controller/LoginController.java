@@ -34,10 +34,10 @@ public class LoginController {
         roles.add("ROLE_USER");
 
         byte[] secretKey = jwtProps.getSecretKey().getBytes();
-        
+
 
         
-        return entity;
+        return new ResponseEntity<>(null);
     }
     
 
