@@ -34,6 +34,14 @@ dependencies {
 	// spring-boot-configuration-processor
 	implementation 'org.springframework.boot:spring-boot-configuration-processor'
 
+	// spring-security-jwt
+	// implementation 'org.springframework.security:spring-security-jwt:1.1.1.RELEASE'
+
+	// jwt 
+	implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3'
+	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
+
 }
 
 tasks.named('test') {
