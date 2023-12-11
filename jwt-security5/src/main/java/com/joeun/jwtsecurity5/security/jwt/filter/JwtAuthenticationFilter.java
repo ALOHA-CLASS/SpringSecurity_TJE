@@ -1,4 +1,4 @@
-package com.joeun.jwtsecurity.security.jwt.filter;
+package com.joeun.jwtsecurity5.security.jwt.filter;
 
 import java.io.IOException;
 import java.util.List;
@@ -17,25 +17,24 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.joeun.jwtsecurity.security.domain.CustomUser;
-import com.joeun.jwtsecurity.security.jwt.constants.SecurityConstants;
-import com.joeun.jwtsecurity.security.jwt.provider.JwtTokenProvider;
+import com.joeun.jwtsecurity5.dto.CustomUser;
+import com.joeun.jwtsecurity5.security.jwt.constants.SecurityConstants;
+import com.joeun.jwtsecurity5.security.jwt.provider.JwtTokenProvider;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
-
+    private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
 
 
-    // 생성자
-    public JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider) {
-        this.jwtTokenProvider = jwtTokenProvider;
 
+    // 생성자
+    public JwtAuthenticationFilter( AuthenticationManager authenticationManager,  JwtTokenProvider jwtTokenProvider ) {
+        this.authenticationManager = authenticationManager;
+        this.jwtTokenProvider = jwtTokenProvider;
         // 필터 URL 경로 설정
         // /login
         setFilterProcessesUrl(SecurityConstants.AUTH_LOGIN_URL);
@@ -46,23 +45,23 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException {
-
+        
         String username = request.getParameter("username");
         String password = request.getParameter("password");
 
         log.info("username : " + username);
         log.info("password : " + password);
 
-        Authentication authToken = new UsernamePasswordAuthenticationToken(username, password);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(username, password);
+        authentication = authenticationManager.authenticate(authentication);
+        log.info("authToken : Authentication  - " + authentication);
 
-        log.info("authToken : Authentication  - " + authToken);
-
-        log.info("isAuthenticated : " + authToken.isAuthenticated());
+        log.info("인증 여부 : " + authentication.isAuthenticated());
         
         log.info("authenticationManager : " + authenticationManager);
 
 
-        return authenticationManager.authenticate(authToken);
+        return authentication;
     }
 
 
@@ -72,8 +71,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
 
         CustomUser user = ((CustomUser) authentication.getPrincipal());
-        int userNo = user.getNo();
-        String userId = user.getUserId();
+        int userNo = user.getUser().getNo();
+        String userId = user.getUser().getUserId();
 
         List<String> roles = user.getAuthorities()
                                 .stream()
