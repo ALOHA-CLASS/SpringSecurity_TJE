@@ -3,6 +3,14 @@
 .vscode/
 ./vscode
 ./bin
+./gradle
+/gradle
+./**/gradle
+/.gradle
+
+
+# 
+./node_modules
 
 # Compiled class file
 *.class
