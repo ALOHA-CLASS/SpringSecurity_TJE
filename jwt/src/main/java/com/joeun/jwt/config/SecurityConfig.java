@@ -6,7 +6,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 
-// TODO : deprecated 없애기 (version : before SpringSecurity 5.4 ⬇)
+// OK : deprecated 없애기 (version : before SpringSecurity 5.4 ⬇)
 // @EnableWebSecurity
 // public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
@@ -38,7 +38,7 @@ public class SecurityConfig {
 	}
 
 	
-	// TODO : deprecated 없애기 (version : before SpringSecurity 5.4 ⬇)
+	// OK : deprecated 없애기 (version : before SpringSecurity 5.4 ⬇)
 	// @Override
 	// protected void configure(HttpSecurity http) throws Exception {
 	// 	// 폼 기반 로그인 비활성화

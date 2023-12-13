@@ -104,7 +104,7 @@ public class LoginController {
         log.info("secretKey : " + secretKey);
         log.info("signingKey : " + signingKey);
 
-        // TODO : deprecated 업애기 (version: before 1.0)
+        // OK : deprecated 업애기 (version: before 1.0)
         // Jws<Claims> parsedToken = Jwts.parser()
         //                                 .setSigningKey(signingKey)
         //                                 .build()
