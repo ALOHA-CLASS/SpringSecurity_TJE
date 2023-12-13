@@ -74,7 +74,7 @@
     </update>
 
 
-    <!-- 회원 수정 -->
+    <!-- 회원 삭제 -->
     <delete id="delete">
         DELETE FROM user
         WHERE user_id = #{userId}

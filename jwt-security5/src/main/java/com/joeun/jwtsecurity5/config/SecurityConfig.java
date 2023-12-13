@@ -54,7 +54,7 @@ public class SecurityConfig  {
 
         // 필터 설정
         http.addFilterAt(new JwtAuthenticationFilter(authenticationManager, jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
-            .addFilterBefore(new JwtRequestFilter(), UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(new JwtRequestFilter(authenticationManager, jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
             ;
 
         http.authorizeHttpRequests()

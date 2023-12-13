@@ -13,7 +13,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import com.joeun.jwtsecurity5.dto.CustomUser;
+import com.joeun.jwtsecurity5.dto.UserAuth;
 import com.joeun.jwtsecurity5.dto.Users;
+import com.joeun.jwtsecurity5.mapper.UserMapper;
 import com.joeun.jwtsecurity5.prop.JwtProps;
 import com.joeun.jwtsecurity5.security.jwt.constants.SecurityConstants;
 
@@ -41,6 +43,9 @@ public class JwtTokenProvider {
 
     @Autowired
     private JwtProps jwtProps;
+
+    @Autowired
+    private UserMapper userMapper;
 
     /*
      * 👩‍💼➡🔐 토큰 생성
@@ -75,6 +80,7 @@ public class JwtTokenProvider {
      * ➡ UsernamePasswordAuthenticationToken
      * @param authHeader
      * @return
+     * @throws Exception
      */
     public UsernamePasswordAuthenticationToken getAuthentication(String authHeader) {
         if(authHeader == null || authHeader.length() == 0 ) 
@@ -94,8 +100,8 @@ public class JwtTokenProvider {
             log.info("parsedToken : " + parsedToken);
 
             // 인증된 사용자 번호
-            Integer userNo = (Integer) parsedToken.getPayload().get("uno");
-            userNo = userNo == null ? 0 : userNo;
+            String userNo = parsedToken.getPayload().get("uno").toString();
+            int no = ( userNo == null ? 0 : Integer.parseInt(userNo) );
             log.info("userNo : " + userNo);
 
             // 인증된 사용자 아이디
@@ -114,19 +120,39 @@ public class JwtTokenProvider {
 
 
             Users user = new Users();
-            user.setNo(userNo);
+            user.setNo(no);
             user.setUserId(userId);
-            // TODO: 권한도 바로 Users 객체에 담아보기
+            // OK: 권한도 바로 Users 객체에 담아보기
+            List<UserAuth> authList = ((List<?>) roles )
+                                            .stream()
+                                            .map(auth -> new UserAuth(userId, auth.toString()) )
+                                            .collect( Collectors.toList() );
+            user.setAuthList(authList);
 
-            // OK: CustomeUser 에 권한 담기
+            // OK
+            // CustomeUser 에 권한 담기
             List<SimpleGrantedAuthority> authorities = ((List<?>) roles )
                                                         .stream()
                                                         .map(auth -> new SimpleGrantedAuthority( (String) auth ))
                                                         .collect( Collectors.toList() );
 
+            // 토큰 유효하면
+            // name, email 도 담아주기
+            try {
+                Users userInfo = userMapper.select(no);
+                if( userInfo != null ) {
+                    user.setName(userInfo.getName());
+                    user.setEmail(userInfo.getEmail());
+                }
+            } catch (Exception e) {
+                log.error(e.getMessage());
+                log.error("토큰 유효 -> DB 추가 정보 조회시 에러 발생...");
+            }
+
             UserDetails userDetails = new CustomUser(user);
 
-            // TODO: UsernamePasswordAuthenticationToken() 인자의 의미 확인하기
+            // OK
+            // new UsernamePasswordAuthenticationToken( 사용자정보객체, 비밀번호, 사용자의 권한(목록)  );
             return new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
 
         } catch (ExpiredJwtException exception) {
@@ -161,6 +187,9 @@ public class JwtTokenProvider {
                                     .verifyWith(getShaKey())
                                     .build()
                                     .parseSignedClaims(jwt);    
+
+            log.info("::::: 토큰 만료기간 :::::");
+            log.info("-> " + claims.getPayload().getExpiration());
             /*
                 PAYLOAD
                 {
@@ -173,13 +202,13 @@ public class JwtTokenProvider {
             */
 	        return !claims.getPayload().getExpiration().before(new Date());
 	    } catch (ExpiredJwtException exception) {
-            log.error("Token Expired");
+            log.error("Token Expired");                 // 토큰 만료 
             return false;
         } catch (JwtException exception) {
-            log.error("Token Tampered");
+            log.error("Token Tampered");                // 토큰 손상
             return false;
         } catch (NullPointerException exception) {
-            log.error("Token is null");
+            log.error("Token is null");                 // 토큰 없음
             return false;
         } catch (Exception e) {
 	        return false;
