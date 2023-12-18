@@ -180,7 +180,7 @@ const LoginContextProvider = ({ children }) => {
     console.log(`roleList : ${roleList}`)
 
     // 💍 ➡ 🍪
-    // JWT 토큰 쿠키에 저장
+    // JWT 토큰 을 header 저장
     api.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
 
     // 로그인 여부
